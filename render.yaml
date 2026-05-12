@@ -1,0 +1,35 @@
+services:
+  # Backend API
+  - type: web
+    name: task-flow-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node src/server.js
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: MONGODB_URI
+        sync: false # You will need to provide your MongoDB Atlas URI here
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: task-flow-frontend
+          property: url
+
+  # Frontend React App
+  - type: web
+    name: task-flow-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    publishDir: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: task-flow-backend
+          property: url
+        suffix: /api
